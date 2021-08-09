@@ -3,6 +3,9 @@ POST http://localhost:3003/notifications
 content-type: application/json
 
 {   
+    "type": "single",
     "body": "second notification",
-    "type": "group"
+    "title": "notification title",
+    "delivery_method": "push",
+    "consumers": ["sfdfas", "dsfsdf"]
 }
