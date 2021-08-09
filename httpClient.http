@@ -1,0 +1,8 @@
+###
+POST http://localhost:3003/notifications
+content-type: application/json
+
+{   
+    "body": "second notification",
+    "type": "group"
+}
