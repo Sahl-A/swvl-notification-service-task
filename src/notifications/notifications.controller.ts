@@ -7,8 +7,8 @@ export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   @Post()
-  create(@Body() createNotificationDto: CreateNotificationDto) {
-    return this.notificationsService.create(createNotificationDto);
+  async create(@Body() createNotificationDto: CreateNotificationDto) {
+    return await this.notificationsService.create(createNotificationDto);
   }
 
   @Get()
