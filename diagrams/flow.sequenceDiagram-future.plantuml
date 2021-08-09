@@ -1,0 +1,33 @@
+@startuml general-flow
+hide footbox
+skinparam maxMessageSize 150
+actor user
+box "Backend Service"  
+participant "Backend API" as bs
+end box
+box "notification service" #LightCyan
+participant "Notification API" as ns
+database "Notifications DB" as ndb
+end box
+queue rabbitMQ as q
+box "SMS Service"
+participant "SMS API" as ss 
+end box
+
+== Push Notifications ==
+user -> bs : current location  
+bs -> ns : /notifications/push
+ns -> ndb: store notification
+ns -> bs: accepted (202)
+ns -> user : push notification (websocket)
+== SMS Notifications ==
+bs -> ns: /notifications/sms
+ns -> ndb: store notification
+ns -> q: notification body + user id(s)
+q -> ss : notification body + user id(s)
+ss -> user : SMS notification
+
+
+
+
+@enduml
