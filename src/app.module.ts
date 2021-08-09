@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 import configuration from './config/configuration';
+import dbConfiguration from './config/database';
 
 const env = process.env.NODE_ENV || 'dev';
 
@@ -10,7 +12,14 @@ const env = process.env.NODE_ENV || 'dev';
       // load different .env files based on runtime environment variable
       envFilePath: !env ? '.development.env' : `.${env}.env`,
       isGlobal: true,
-      load: [configuration],
+      load: [configuration, dbConfiguration],
+    }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        uri: configService.get('mongoUrl'),
+      }),
+      inject: [ConfigService],
     }),
   ],
 })
