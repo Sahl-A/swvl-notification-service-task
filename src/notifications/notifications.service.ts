@@ -14,6 +14,9 @@ export class NotificationsService {
     const newNotification = new this.NotificationModel({
       body: createNotificationDto.body,
       type: createNotificationDto.type,
+      title: createNotificationDto.title,
+      delivery_method: createNotificationDto.delivery_method,
+      consumers: createNotificationDto.consumers,
     });
     const result = await newNotification.save();
     return result.id;
