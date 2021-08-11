@@ -4,6 +4,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { NotificationsModule } from './notifications/notifications.module';
 import configuration from './config/configuration';
 import dbConfiguration from './config/database';
+import { BullModule } from '@nestjs/bull';
+import { QueuesModule } from './queues/queues.module';
 
 const env = process.env.NODE_ENV || 'dev';
 
@@ -22,6 +24,13 @@ const env = process.env.NODE_ENV || 'dev';
       }),
       inject: [ConfigService],
     }),
+    BullModule.forRoot({
+      redis: {
+        host: 'localhost',
+        port: 6379,
+      },
+    }),
+    QueuesModule,
     NotificationsModule,
   ],
 })
