@@ -12,13 +12,19 @@ export class Notification {
   body: string;
 
   @Prop()
+  priority: number;
+
+  @Prop({ default: false })
+  sent: boolean;
+
+  @Prop()
   title: string;
 
   @Prop()
   delivery_method: string;
 
   @Prop({ type: [] })
-  consumers: string[];
+  recipients: string[];
 }
 
 export const NotificationSchema = SchemaFactory.createForClass(Notification);

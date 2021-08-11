@@ -11,11 +11,14 @@ export class CreateNotificationDto {
   @IsString()
   title: string;
 
+  @IsIn([1, 2, 3, 4, 5])
+  priority: number;
+
   @IsString()
   @IsIn(['sms', 'push'])
   delivery_method: string;
 
   @IsArray()
   @IsString({ each: true })
-  consumers: string[];
+  recipients: string[];
 }
