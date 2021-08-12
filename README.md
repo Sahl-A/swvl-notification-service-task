@@ -1,73 +1,104 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
-</p>
+## Prerequisites
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+#### Docker & Docker-Compose Setup:
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+- Docker installation: https://docs.docker.com/get-docker/.
+- Docker-compose installation: https://docs.docker.com/compose/install/.
 
-## Description
+## How to run
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- run docker compose:
+   ```
+   docker-compose -d up
+   ```
 
-## Installation
+- The service is now up and running on ***localhost:3003***
 
-```bash
-$ npm install
-```
+- Add notifications through `POST localhost:3003/notifications`
+   - the scripts in /data directory could be used to send requests. 
 
-## Running the app
+- run `docker logs notification-service --follow` to see the result as it will be printed on the console
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Test
+## Tests
 
 ```bash
 # unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
+yarn test
 
 # test coverage
-$ npm run test:cov
+yarn test:cov
 ```
 
-## Support
+## Diagrams
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+![architecture](./diagrams/notification-service-sequence-diagram.png)
 
-## Stay in touch
+## Technical Workflow
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- Notification api receives a request to add a notification. This request is received from different other SWVL backend services. 
 
-## License
+- The request body holds the following data:
+  
+   ```javascript
+   {   
+    "type": "single", // this could be single or group
+    "body": "second notification",
+    "title": "notification title",
+    "delivery_method": "push", // this either push, sms or any other provider
+    "priority": 2,  // 1 most important, 5 least important
+    "recipients": ["user1_id", "user2_id"] // userId of the recepient to get its data
+   }
+   ```
 
-Nest is [MIT licensed](LICENSE).
+- The notification is added to the database then 202 status code response is sent back with notification id
+
+- When the application starts the following runs:
+  - **sms_notification** & **push_notification** queues are added
+  -  a cron task runs every 1 sec to perform the following:
+      - Get all notifications with sent = false from database 
+      - Add each notification to a background job in in one of the queues **sms_notification** & **push_notification** based on its `delivery_method`. The job is added to redis cache
+      - Consume the job by sending the notification data to the appropriate provider. 
+      - Once the job is completed, the notification is marked as sent = true
+      - In the provider, either send the notification to a user, or to group of users based on notification type
+
+- Points to consider:
+  - The **sms_notification** & **push_notification** queues are configured to rate limit the jobs processed
+     - based on the above point, we can control the flow of the notifications sent to the provider (sms/push)
+  - we can control each job re-attempts, delete each job after completion of not, and so many options
+  - visit `GET localhost:8081` for redis UI
+  - visit `GET localhost:3003/admin/queues` for UI for queues and jobs
+
+
+## Configuration
+
+- The following configuration variables can be passed: 
+   - PORT 
+   - MONGO_URL
+   - REDIS_URL
+   - SMS_PROVIDER_NOTIFICATION_LIMIT_PER_TIME
+     - the limit of sent notification to sms provider per certain duration
+   - SMS_PROVIDER_NOTIFICATION_TIME
+     - the duration in milliseconds in which we limit the number of notifications sent to a sms provider 
+   - PUSH_PROVIDER_NOTIFICATION_LIMIT_PER_TIME
+   - PUSH_PROVIDER_NOTIFICATION_TIME
+
+## OpenAPI Definitions
+
+- hit `GET localhost:3003/api` to view the swagger definitions of this res api
+
+## Microservices' communications
+
+- Other SWVL microservices (location, promotions, etc..) would contact the notifications service to send a notification as follows:
+   - Http request like what demonestrated in the current implementation
+   - Event driven message brokers (rabbitMQ, kafka, etc..) 
+- Since all communications with the notifications service done asyncronously, it is better to use event driven message brokders.
+
+## Future improvements
+
+- Implement how this microservice would get the users data. This could be done by one of the following methods:
+    - first method: Whenever a user is added in users microservice, 
+    it publishes a message with the added users' data, and
+    notifications service subscribe to the this queue to receive
+    the user data.Then it stores what it needs in a users table
+    - second method: before sending a notification, notifications service
+    sends http request to users service to get the needed data to send the notification
