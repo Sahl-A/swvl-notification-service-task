@@ -1,0 +1,79 @@
+openapi: 3.0.0
+info:
+  description: "Notification Service API Specs"
+  version: 1.0.0
+  title: SWVL Notification Service
+tags:
+  - name: notifications
+    description: notifications endpoints
+paths:
+  /notifications:
+    post:
+      tags:
+        - notifications
+      summary: Add a new notification
+      operationId: addNotification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/notification_creation_request"
+      responses:
+        201:
+          description: Notification Added Successfully
+          $ref: "#/components/responses/added_notification"
+        400:
+          description: Bad request
+          $ref: "#/components/responses/error_bad_request"
+components:
+  schemas:
+    notification_creation_request:
+      type: object
+      properties:
+        body:
+          type: string
+        title:
+          type: string
+        delivery_method:
+          type: string
+          enum:
+            - push
+            - sms
+        type:
+          type: string
+          enum:
+            - single
+            - group
+        priority:
+          type: number
+        recipients: 
+          type: array
+          items:
+            type: string
+            
+      required: ["body", "title", "delivery_method","priority", "recipients","type"]
+    generic_error:
+      type: object
+      properties:
+        message:
+          type: array
+          items:
+            type: string
+          example: ["error1", "error2"]
+        status_code:
+          type: number
+          default: 123
+  responses:
+    added_notification:
+      description: Notification added successfully
+      content:
+        application/json:
+          schema:
+            type: string  
+    error_bad_request:
+      description: Bad Request Error occured
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/generic_error"
