@@ -7,6 +7,17 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from '../notifications/models/user.model';
 import { BullModule } from '@nestjs/bull';
 import { QueueUIProvider } from './queuesUI.service';
+import { QueuesProducerSerive } from './queues.producer';
+import { PushNotificationConsumer } from './processors/pushNotificationQueue.processor';
+import { SmsNotificationConsumer } from './processors/smsNotificationQueue.processor';
+import { ProvidersModule } from '../providers/providers.module';
+import {
+  pushProviderNotificationLimitPerTime,
+  pushProviderNotificationTime,
+  smsProviderNotificationLimitPerTime,
+  smsProviderNotificationTime,
+} from '../constants';
+import { jobQueues } from '../shared/enums/jobQueues.enums';
 
 @Module({
   imports: [
@@ -14,11 +25,35 @@ import { QueueUIProvider } from './queuesUI.service';
       { name: Notification.name, schema: NotificationSchema },
       { name: User.name, schema: UserSchema },
     ]),
-    BullModule.registerQueue({
-      name: 'notification',
-    }),
+    BullModule.registerQueue(
+      {
+        name: jobQueues.PUSH,
+        limiter: {
+          duration: smsProviderNotificationTime,
+          max: smsProviderNotificationLimitPerTime,
+        },
+      },
+      {
+        name: jobQueues.SMS,
+        limiter: {
+          duration: pushProviderNotificationTime,
+          max: pushProviderNotificationLimitPerTime,
+        },
+      },
+    ),
+    ProvidersModule,
   ],
   controllers: [],
-  providers: [QueueUIProvider],
+  providers: [
+    QueueUIProvider,
+    QueuesProducerSerive,
+    PushNotificationConsumer,
+    SmsNotificationConsumer,
+  ],
+  exports: [
+    QueuesProducerSerive,
+    PushNotificationConsumer,
+    SmsNotificationConsumer,
+  ],
 })
 export class QueuesModule {}
