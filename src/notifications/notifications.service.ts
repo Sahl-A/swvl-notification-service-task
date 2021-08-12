@@ -17,12 +17,4 @@ export class NotificationsService {
     const result = await newNotification.save();
     return result.id;
   }
-
-  findAll() {
-    return `This action returns all notifications`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} notification`;
-  }
 }

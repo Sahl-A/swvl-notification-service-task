@@ -10,14 +10,4 @@ export class NotificationsController {
   async create(@Body() createNotificationDto: CreateNotificationDto) {
     return await this.notificationsService.create(createNotificationDto);
   }
-
-  @Get()
-  findAll() {
-    return this.notificationsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.notificationsService.findOne(+id);
-  }
 }
