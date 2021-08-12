@@ -7,5 +7,6 @@ content-type: application/json
     "body": "second notification",
     "title": "notification title",
     "delivery_method": "push",
-    "consumers": ["sfdfas", "dsfsdf"]
+    "priority": 2,
+    "recipients": ["user1_id"]
 }
