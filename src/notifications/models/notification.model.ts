@@ -17,6 +17,9 @@ export class Notification {
   @Prop({ default: false })
   sent: boolean;
 
+  @Prop({ default: false })
+  queued: boolean;
+
   @Prop()
   title: string;
 
