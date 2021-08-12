@@ -5,11 +5,30 @@ services:
     network_mode: host
     container_name: mongo
 
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: rabbitmq
-    network_mode: host
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - 6379:6379
+
+  redis-commander:
+    container_name: redis-commander
+    image: rediscommander/redis-commander
+    restart: always
     environment:
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: admin
-      RABBITMQ_URL: amqp://admin:admin@localhost:5672
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on: 
+      - redis
+
+  notification-service:
+    container_name: notification-service
+    build: 
+      context: ./
+    env_file: 
+      - .dev.env
+    network_mode: host
+    depends_on: 
+      - redis
+      - mongo
