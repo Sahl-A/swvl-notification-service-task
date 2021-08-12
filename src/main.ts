@@ -7,6 +7,8 @@ import * as swaggerUi from 'swagger-ui-express';
 import * as swaggerDocument from '../openAPI/notifications.openAPI.json';
 import * as winston from 'winston';
 import { HttpLoggingInterceptor } from './logging/http-logging.interceptor';
+import { AllExceptionsFilterLogger } from './shared/exception-filters/http-exception-filter-logger';
+
 import { winstonLoggerOptions } from './logging/winston-options';
 
 async function bootstrap() {
@@ -21,6 +23,7 @@ async function bootstrap() {
   // add logging
   const logger = winston.createLogger(winstonLoggerOptions);
   app.useGlobalInterceptors(new HttpLoggingInterceptor(logger));
+  app.useGlobalFilters(new AllExceptionsFilterLogger(logger));
 
   // get the bull-board ui
   app.use('/admin/queues', serverAdapter.getRouter());
