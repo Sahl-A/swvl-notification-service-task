@@ -6,6 +6,8 @@ import configuration from './config/configuration';
 import dbConfiguration from './config/database';
 import { BullModule } from '@nestjs/bull';
 import { QueuesModule } from './queues/queues.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TasksModule } from './tasks/tasks.module';
 
 const env = process.env.NODE_ENV || 'dev';
 
@@ -30,6 +32,8 @@ const env = process.env.NODE_ENV || 'dev';
         port: 6379,
       },
     }),
+    ScheduleModule.forRoot(),
+    TasksModule,
     QueuesModule,
     NotificationsModule,
   ],
