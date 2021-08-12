@@ -17,8 +17,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand"
   },
   "dependencies": {
     "@bull-board/express": "^3.5.0",
@@ -29,19 +28,22 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/mongoose": "^8.0.0",
     "@nestjs/platform-express": "^7.6.15",
+    "@nestjs/schedule": "^1.0.1",
     "bull": "^3.28.1",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "mongoose": "^5.13.5",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^6.6.6"
+    "rxjs": "^6.6.6",
+    "swagger-ui-express": "^4.1.6"
   },
   "devDependencies": {
     "@nestjs/cli": "^7.6.0",
     "@nestjs/schematics": "^7.3.0",
     "@nestjs/testing": "^7.6.15",
     "@types/bull": "^3.15.3",
+    "@types/cron": "^1.7.3",
     "@types/express": "^4.17.11",
     "@types/jest": "^26.0.22",
     "@types/node": "^14.14.36",
