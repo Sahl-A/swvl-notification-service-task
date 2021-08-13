@@ -5,7 +5,7 @@ export const winstonLoggerOptions: winston.LoggerOptions = {
   format: winston.format.json(),
   defaultMeta: { service: 'notifications-service' },
   transports: [
-    new winston.transports.Console(),
+    new winston.transports.Console({ level: 'error' }),
     new winston.transports.File({
       filename: './logs/error.log',
       level: 'error',
@@ -14,6 +14,7 @@ export const winstonLoggerOptions: winston.LoggerOptions = {
     new winston.transports.File({
       filename: './logs/activities.log',
       maxsize: 10000000,
+      level: 'info',
     }),
   ],
 };
