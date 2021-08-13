@@ -8,6 +8,8 @@ import { BullModule } from '@nestjs/bull';
 import { QueuesModule } from './queues/queues.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TasksModule } from './tasks/tasks.module';
+import { WinstonModule } from 'nest-winston';
+import { winstonLoggerOptions } from './logging/winston-options';
 
 const env = process.env.NODE_ENV || 'dev';
 
@@ -32,6 +34,7 @@ const env = process.env.NODE_ENV || 'dev';
         port: 6379,
       },
     }),
+    WinstonModule.forRoot(winstonLoggerOptions),
     ScheduleModule.forRoot(),
     TasksModule,
     QueuesModule,
