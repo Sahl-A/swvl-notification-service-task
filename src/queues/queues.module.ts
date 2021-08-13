@@ -16,7 +16,7 @@ import {
   pushProviderNotificationTime,
   smsProviderNotificationLimitPerTime,
   smsProviderNotificationTime,
-} from '../constants';
+} from '../config/constants';
 import { jobQueues } from '../shared/enums/jobQueues.enums';
 
 @Module({
