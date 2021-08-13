@@ -37,6 +37,8 @@ export class SmsNotificationConsumer {
   async markNotificationAsSent(job: Job) {
     const filter = { _id: job.data._id };
     const update = { sent: true };
-    await this.NotificationModel.findOneAndUpdate(filter, update);
+    await this.NotificationModel.findOneAndUpdate(filter, update, {
+      useFindAndModify: false,
+    });
   }
 }
