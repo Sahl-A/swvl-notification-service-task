@@ -35,9 +35,9 @@ yarn test:cov
 
 ## Technical Workflow
 
-- Notification api receives a request to add a notification. This request is received from different other SWVL backend services. 
+- Notification api receives a request to add a notification. This request is received from other SWVL backend services. 
 
-- The request body holds the following data:
+- The following request body gets validated in the DTO:
   
    ```javascript
    {   
