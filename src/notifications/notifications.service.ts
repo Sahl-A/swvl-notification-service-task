@@ -1,16 +1,20 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateNotificationDto } from './dto/create-notification.dto';
-import { NotificationRepository } from './notifications.repository';
+import { Notification } from './models/notification.model';
 
 @Injectable()
 export class NotificationsService {
   constructor(
-    private readonly notificationRepository: NotificationRepository,
+    @InjectModel('Notification')
+    private readonly NotificationModel: Model<Notification>,
   ) {}
   async create(createNotificationDto: CreateNotificationDto) {
-    const newNotification = await this.notificationRepository.create({
+    const newNotification = new this.NotificationModel({
       ...createNotificationDto,
     });
-    return newNotification.id;
+    const result = await newNotification.save();
+    return result.id;
   }
 }
