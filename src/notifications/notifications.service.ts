@@ -8,13 +8,12 @@ import { Notification } from './models/notification.model';
 export class NotificationsService {
   constructor(
     @InjectModel('Notification')
-    private readonly NotificationModel: Model<Notification>,
+    private readonly notificationModel: Model<Notification>,
   ) {}
   async create(createNotificationDto: CreateNotificationDto) {
-    const newNotification = new this.NotificationModel({
+    const newNotification = await this.notificationModel.create({
       ...createNotificationDto,
     });
-    const result = await newNotification.save();
-    return result.id;
+    return newNotification.id;
   }
 }
